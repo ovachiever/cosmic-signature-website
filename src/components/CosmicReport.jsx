@@ -4,85 +4,51 @@ const CosmicReport = ({ report, birthData, onReset }) => {
   if (!report) return null;
 
   return (
-    <div className="report-container">
+    <div className="cosmic-report">
       <div className="report-header">
-        <h2 className="report-title">Your Cosmic Signature</h2>
-        <p className="report-subtitle">
-          Based on your birth at {birthData.birthTime} on {new Date(birthData.birthDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+        <h1>Your Cosmic Signature</h1>
+        <p className="birth-info">Based on your birth at {birthData.formattedTime} on {report.formattedBirthDate}</p>
       </div>
-      
-      <div className="report-section">
-        <h3 className="report-section-title">Solar Essence</h3>
-        <div className="report-content">
-          <p>
-            Your Sun in <span className="report-highlight">{report.sunSign}</span> reveals your core essence and conscious self-expression. 
-            This placement illuminates your path toward self-realization and shapes how you radiate your unique energy into the world.
-          </p>
-          <div className="report-visualization">
-            {/* Solar visualization would be rendered here */}
-          </div>
+
+      <div className="report-section core-signature">
+        <div className="signature-item">
+          <h3>Sun Sign</h3>
+          <div className="sign-icon sun-sign">{report.sunSign}</div>
+          <p>Your core essence and conscious identity</p>
+        </div>
+        
+        <div className="signature-item">
+          <h3>Moon Sign</h3>
+          <div className="sign-icon moon-sign">{report.moonSign}</div>
+          <p>Your emotional landscape and inner world</p>
+        </div>
+        
+        <div className="signature-item">
+          <h3>Ascendant</h3>
+          <div className="sign-icon ascendant-sign">{report.ascendant}</div>
+          <p>Your outer persona and approach to life</p>
         </div>
       </div>
-      
-      <div className="report-section">
-        <h3 className="report-section-title">Lunar Landscape</h3>
-        <div className="report-content">
-          <p>
-            Your Moon in <span className="report-highlight">{report.moonSign}</span> reflects your emotional nature and subconscious patterns.
-            This placement reveals how you process feelings, what brings you comfort, and your intuitive responses to life's ebb and flow.
-          </p>
-          <div className="report-visualization">
-            {/* Lunar visualization would be rendered here */}
-          </div>
+
+      <div className="report-section unique-insights">
+        <h2>Your Cosmic Blueprint</h2>
+        <p>{report.uniqueInsights}</p>
+      </div>
+
+      <div className="report-section aspects">
+        <h2>Celestial Aspects</h2>
+        <div className="aspects-grid">
+          {report.aspects.slice(0, 5).map((aspect, index) => (
+            <div key={index} className="aspect-item">
+              <h4>{aspect.aspect}: {aspect.planets}</h4>
+              <p>{aspect.influence}</p>
+            </div>
+          ))}
         </div>
       </div>
-      
-      <div className="report-section">
-        <h3 className="report-section-title">Rising Expression</h3>
-        <div className="report-content">
-          <p>
-            Your Ascendant in <span className="report-highlight">{report.ascendant}</span> shapes your outer persona and how others perceive you.
-            This cosmic mask represents your natural approach to new situations and the energy you project into the world.
-          </p>
-          <div className="report-visualization">
-            {/* Ascendant visualization would be rendered here */}
-          </div>
-        </div>
-      </div>
-      
-      <div className="report-section">
-        <h3 className="report-section-title">Celestial Aspects</h3>
-        <div className="report-content">
-          <p>
-            The unique geometric relationships between celestial bodies at your birth moment create a cosmic symphony that resonates throughout your life:
-          </p>
-          <ul className="aspect-list">
-            {report.aspects.map((aspect, index) => (
-              <li key={index} className="aspect-item">
-                <span className="aspect-name">{aspect.aspect}:</span> {aspect.planets} — <span className="aspect-influence">{aspect.influence}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-      
-      <div className="report-section">
-        <h3 className="report-section-title">Unique Cosmic Signature</h3>
-        <div className="report-content">
-          <p>
-            {report.uniqueInsights}
-          </p>
-        </div>
-      </div>
-      
+
       <div className="report-actions">
-        <button className="report-button" onClick={onReset}>
-          Generate New Signature
-        </button>
-        <button className="report-button">
-          Save as PDF
-        </button>
+        <button className="reset-button" onClick={onReset}>Generate New Report</button>
       </div>
     </div>
   );
