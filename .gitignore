@@ -1,1 +1,1 @@
-node_modules/\n.DS_Store\ndist/\n.env\n.env.local
+node_modules/\n.DS_Store\ndist/\n.env\n.env.local\nclean-build/\ntest-build/\n__pycache__/\n*.pyc
