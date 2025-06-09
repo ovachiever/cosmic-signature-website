@@ -579,3 +579,88 @@ button {
     height: 150px;
   }
 }
+/* Add these styles to App.css */
+
+/* Location autocomplete styles */
+.location-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.location-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: rgba(15, 28, 63, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.suggestion-item {
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--stardust-gold);
+}
+
+.coordinates-display {
+  margin-top: var(--space-xs);
+  font-size: var(--font-size-sm);
+  color: var(--stardust-gold);
+  opacity: 0.8;
+  font-style: italic;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Summary styles for step 3 */
+.form-summary {
+  background-color: rgba(15, 28, 63, 0.5);
+  border-radius: 8px;
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.summary-title {
+  font-size: var(--font-size-lg);
+  color: var(--stardust-gold);
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: var(--pearl-white);
+}
+
+.summary-value {
+  color: var(--celestial-rose);
+}
