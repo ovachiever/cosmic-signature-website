@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { geocodeLocation } from '../lib/geocoding';
 
 const BirthDataForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -11,60 +12,60 @@ const BirthDataForm = ({ onSubmit }) => {
   });
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [showManualCoords, setShowManualCoords] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
   const totalSteps = 3;
   
-  // For location autocomplete
-  const [locationSuggestions, setLocationSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const suggestionsRef = useRef(null);
-
-  // Sample location data with coordinates
-  const locationDatabase = [
-    { name: "New York, NY, USA", latitude: "40.7128", longitude: "-74.0060" },
-    { name: "Los Angeles, CA, USA", latitude: "34.0522", longitude: "-118.2437" },
-    { name: "Chicago, IL, USA", latitude: "41.8781", longitude: "-87.6298" },
-    { name: "Houston, TX, USA", latitude: "29.7604", longitude: "-95.3698" },
-    { name: "Phoenix, AZ, USA", latitude: "33.4484", longitude: "-112.0740" },
-    { name: "Philadelphia, PA, USA", latitude: "39.9526", longitude: "-75.1652" },
-    { name: "San Antonio, TX, USA", latitude: "29.4241", longitude: "-98.4936" },
-    { name: "San Diego, CA, USA", latitude: "32.7157", longitude: "-117.1611" },
-    { name: "Dallas, TX, USA", latitude: "32.7767", longitude: "-96.7970" },
-    { name: "San Francisco, CA, USA", latitude: "37.7749", longitude: "-122.4194" },
-    { name: "Austin, TX, USA", latitude: "30.2672", longitude: "-97.7431" },
-    { name: "Seattle, WA, USA", latitude: "47.6062", longitude: "-122.3321" },
-    { name: "Denver, CO, USA", latitude: "39.7392", longitude: "-104.9903" },
-    { name: "Boston, MA, USA", latitude: "42.3601", longitude: "-71.0589" },
-    { name: "Nashville, TN, USA", latitude: "36.1627", longitude: "-86.7816" },
-    { name: "Portland, OR, USA", latitude: "45.5051", longitude: "-122.6750" },
-    { name: "Las Vegas, NV, USA", latitude: "36.1699", longitude: "-115.1398" },
-    { name: "Miami, FL, USA", latitude: "25.7617", longitude: "-80.1918" },
-    { name: "London, UK", latitude: "51.5074", longitude: "-0.1278" },
-    { name: "Paris, France", latitude: "48.8566", longitude: "2.3522" },
-    { name: "Tokyo, Japan", latitude: "35.6762", longitude: "139.6503" },
-    { name: "Sydney, Australia", latitude: "-33.8688", longitude: "151.2093" },
-    { name: "Berlin, Germany", latitude: "52.5200", longitude: "13.4050" },
-    { name: "Rome, Italy", latitude: "41.9028", longitude: "12.4964" },
-    { name: "Madrid, Spain", latitude: "40.4168", longitude: "-3.7038" },
-    { name: "Toronto, Canada", latitude: "43.6532", longitude: "-79.3832" },
-    { name: "Moscow, Russia", latitude: "55.7558", longitude: "37.6173" },
-    { name: "Beijing, China", latitude: "39.9042", longitude: "116.4074" },
-    { name: "Cairo, Egypt", latitude: "30.0444", longitude: "31.2357" },
-    { name: "Sheboygan, WI, USA", latitude: "43.7508", longitude: "-87.7145" }
+  // Popular cities for quick selection
+  const popularCities = [
+    { name: 'Sheboygan, WI', value: 'sheboygan, wi' },
+    { name: 'New York, NY', value: 'new york' },
+    { name: 'Los Angeles, CA', value: 'los angeles' },
+    { name: 'Chicago, IL', value: 'chicago' },
+    { name: 'Houston, TX', value: 'houston' },
+    { name: 'Phoenix, AZ', value: 'phoenix' },
+    { name: 'Philadelphia, PA', value: 'philadelphia' },
+    { name: 'San Antonio, TX', value: 'san antonio' },
+    { name: 'San Diego, CA', value: 'san diego' },
+    { name: 'Dallas, TX', value: 'dallas' },
+    { name: 'San Francisco, CA', value: 'san francisco' },
+    { name: 'Seattle, WA', value: 'seattle' },
+    { name: 'Miami, FL', value: 'miami' },
+    { name: 'Boston, MA', value: 'boston' },
+    { name: 'Denver, CO', value: 'denver' },
+    { name: 'Milwaukee, WI', value: 'milwaukee' },
+    { name: 'Madison, WI', value: 'madison' },
+    { name: 'Green Bay, WI', value: 'green bay' },
+    { name: 'Minneapolis, MN', value: 'minneapolis' },
+    { name: 'Detroit, MI', value: 'detroit' },
+    { name: 'Toronto, Canada', value: 'toronto' },
+    { name: 'London, UK', value: 'london' },
+    { name: 'Paris, France', value: 'paris' },
+    { name: 'Tokyo, Japan', value: 'tokyo' },
+    { name: 'Sydney, Australia', value: 'sydney' }
   ];
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
-        setShowSuggestions(false);
-      }
-    }
+  
+  const handleCitySelect = async (cityValue) => {
+    setFormData(prevData => ({
+      ...prevData,
+      birthPlace: cityValue
+    }));
     
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    // Automatically geocode the selected city
+    try {
+      const result = await geocodeLocation(cityValue);
+      if (result) {
+        setFormData(prevData => ({
+          ...prevData,
+          latitude: result.lat,
+          longitude: result.lng,
+          birthPlace: result.displayName || cityValue
+        }));
+      }
+    } catch (error) {
+      console.error('Error geocoding city:', error);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,36 +73,31 @@ const BirthDataForm = ({ onSubmit }) => {
       ...prevData,
       [name]: value
     }));
-    
-    // Handle location input with autocomplete
-    if (name === 'birthPlace') {
-      handleLocationInput(value);
-    }
   };
 
-  const handleLocationInput = (input) => {
-    if (input.length < 2) {
-      setLocationSuggestions([]);
-      setShowSuggestions(false);
-      return;
+  const handleGeocodeLocation = async () => {
+    if (!formData.birthPlace || isGeocoding) return;
+    
+    setIsGeocoding(true);
+    try {
+      const result = await geocodeLocation(formData.birthPlace);
+      if (result) {
+        setFormData(prevData => ({
+          ...prevData,
+          latitude: result.lat,
+          longitude: result.lng,
+          birthPlace: result.displayName || formData.birthPlace
+        }));
+      } else {
+        // If no result found, show a helpful message
+        alert('Location not found. Please try:\n- Check spelling\n- Add state/country (e.g., "Sheboygan, WI")\n- Use manual coordinate entry');
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      alert('Error looking up location. Please use manual coordinate entry.');
+    } finally {
+      setIsGeocoding(false);
     }
-    
-    const filteredLocations = locationDatabase.filter(location => 
-      location.name.toLowerCase().includes(input.toLowerCase())
-    ).slice(0, 5); // Limit to 5 suggestions
-    
-    setLocationSuggestions(filteredLocations);
-    setShowSuggestions(filteredLocations.length > 0);
-  };
-
-  const handleSelectLocation = (location) => {
-    setFormData(prevData => ({
-      ...prevData,
-      birthPlace: location.name,
-      latitude: location.latitude,
-      longitude: location.longitude
-    }));
-    setShowSuggestions(false);
   };
 
   const handleSubmit = (e) => {
@@ -110,12 +106,26 @@ const BirthDataForm = ({ onSubmit }) => {
   };
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+    const newStep = Math.min(currentStep + 1, totalSteps);
+    console.log('[DEBUG] BirthDataForm: Moving from step', currentStep, 'to step', newStep);
+    setCurrentStep(newStep);
   };
 
   const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    const newStep = Math.max(currentStep - 1, 1);
+    console.log('[DEBUG] BirthDataForm: Moving back from step', currentStep, 'to step', newStep);
+    console.log('[DEBUG] Current formData:', formData);
+    setCurrentStep(newStep);
   };
+
+  // Add defensive check to ensure valid step
+  useEffect(() => {
+    console.log('[DEBUG] BirthDataForm mounted/updated. Current step:', currentStep);
+    if (currentStep < 1 || currentStep > totalSteps) {
+      console.error('[ERROR] Invalid step detected:', currentStep, 'Resetting to step 1');
+      setCurrentStep(1);
+    }
+  }, [currentStep]);
 
   return (
     <div className="form-container">
@@ -176,7 +186,31 @@ const BirthDataForm = ({ onSubmit }) => {
             
             <div className="form-group">
               <label className="form-label" htmlFor="birthPlace">Birth Place</label>
-              <div className="location-input-container">
+              
+              {/* Quick city selector */}
+              <div style={{ marginBottom: '10px' }}>
+                <select
+                  className="form-input"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleCitySelect(e.target.value);
+                    }
+                  }}
+                  style={{ marginBottom: '5px' }}
+                >
+                  <option value="">Select a popular city...</option>
+                  {popularCities.map((city) => (
+                    <option key={city.value} value={city.value}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                  Or type your city below
+                </div>
+              </div>
+              
+              <div className="location-input-container" style={{ position: 'relative' }}>
                 <input
                   type="text"
                   id="birthPlace"
@@ -184,25 +218,104 @@ const BirthDataForm = ({ onSubmit }) => {
                   className="form-input"
                   value={formData.birthPlace}
                   onChange={handleChange}
-                  required
                   placeholder="City, Country"
                   autoComplete="off"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleGeocodeLocation();
+                    }
+                  }}
                 />
-                
-                {showSuggestions && (
-                  <div className="location-suggestions" ref={suggestionsRef}>
-                    {locationSuggestions.map((location, index) => (
-                      <div 
-                        key={index} 
-                        className="suggestion-item"
-                        onClick={() => handleSelectLocation(location)}
-                      >
-                        {location.name}
-                      </div>
-                    ))}
-                  </div>
+                {formData.birthPlace && !formData.latitude && (
+                  <button
+                    type="button"
+                    onClick={handleGeocodeLocation}
+                    disabled={isGeocoding}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      padding: '5px 10px',
+                      fontSize: '12px',
+                      backgroundColor: '#6b46c1',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: isGeocoding ? 'wait' : 'pointer',
+                      opacity: isGeocoding ? 0.7 : 1
+                    }}
+                  >
+                    {isGeocoding ? 'Looking up...' : 'Look up'}
+                  </button>
                 )}
               </div>
+              
+              <div style={{ marginTop: '10px' }}>
+                <button
+                  type="button"
+                  className="form-link"
+                  onClick={() => setShowManualCoords(!showManualCoords)}
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    color: '#6b46c1', 
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    fontSize: '14px'
+                  }}
+                >
+                  {showManualCoords ? 'Hide' : 'Enter'} coordinates manually
+                </button>
+              </div>
+              
+              {showManualCoords && (
+                <div className="manual-coords" style={{ marginTop: '15px' }}>
+                  <div className="form-row" style={{ display: 'flex', gap: '10px' }}>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label className="form-label" htmlFor="latitude">Latitude</label>
+                      <input
+                        type="number"
+                        id="latitude"
+                        name="latitude"
+                        className="form-input"
+                        value={formData.latitude}
+                        onChange={handleChange}
+                        placeholder="e.g., 43.7315"
+                        step="0.0001"
+                        min="-90"
+                        max="90"
+                      />
+                    </div>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label className="form-label" htmlFor="longitude">Longitude</label>
+                      <input
+                        type="number"
+                        id="longitude"
+                        name="longitude"
+                        className="form-input"
+                        value={formData.longitude}
+                        onChange={handleChange}
+                        placeholder="e.g., -87.7523"
+                        step="0.0001"
+                        min="-180"
+                        max="180"
+                      />
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                    <a 
+                      href="https://www.latlong.net/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: '#6b46c1' }}
+                    >
+                      Find coordinates for any location →
+                    </a>
+                  </div>
+                </div>
+              )}
               
               {formData.latitude && formData.longitude && (
                 <div className="coordinates-display">
@@ -275,6 +388,22 @@ const BirthDataForm = ({ onSubmit }) => {
           </div>
         )}
         
+        {/* Fallback render if no step matches */}
+        {currentStep !== 1 && currentStep !== 2 && currentStep !== 3 && (
+          <div className="form-step">
+            <p style={{ color: 'red', textAlign: 'center' }}>
+              Error: Invalid form step ({currentStep}). 
+              <button 
+                type="button" 
+                onClick={() => setCurrentStep(1)}
+                style={{ marginLeft: '10px', color: '#6b46c1', textDecoration: 'underline', border: 'none', background: 'none', cursor: 'pointer' }}
+              >
+                Start Over
+              </button>
+            </p>
+          </div>
+        )}
+        
         <div className="form-progress">
           {Array.from({ length: totalSteps }, (_, i) => (
             <div 
@@ -284,6 +413,11 @@ const BirthDataForm = ({ onSubmit }) => {
           ))}
         </div>
       </form>
+      
+      {/* Debug info - remove in production */}
+      <div style={{ position: 'fixed', bottom: 10, right: 10, background: 'rgba(0,0,0,0.8)', color: 'white', padding: '5px 10px', fontSize: '12px', borderRadius: '4px' }}>
+        Step: {currentStep} | Has Coords: {formData.latitude && formData.longitude ? 'Yes' : 'No'}
+      </div>
     </div>
   );
 };

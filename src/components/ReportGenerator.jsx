@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { fetchCosmicSignature } from '../lib/apiClient';
 import { fetchCosmicReport } from '../lib/supabaseClient';
-import { useCosmicReport } from '../lib/astroCalculator';
+import { generateCosmicReport } from '../lib/openaiClient';
 import Hero from './Hero';
 import BirthDataForm from './BirthDataForm';
 import CosmicReport from './CosmicReport';
@@ -17,31 +18,41 @@ const ReportGenerator = () => {
       setIsLoading(true);
       setError(null);
       
-      // Call the Python backend API instead of using the frontend calculation
-      const response = await fetch('http://localhost:5000/api/cosmic-signature', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          birthDate: formData.birthDate,
-          birthTime: formData.birthTime,
-          latitude: formData.latitude,
-          longitude: formData.longitude,
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to generate cosmic signature');
+      // Use the API client to fetch the cosmic signature
+      const { success, data: cosmicData, error } = await fetchCosmicSignature(formData);
+
+      if (!success) {
+        throw new Error(error || 'Failed to generate cosmic signature');
       }
-      
-      const cosmicData = await response.json();
       
       // Save the birth data for display
       setBirthData(formData);
       
-      // Set the report from the backend
-      setReport(cosmicData);
+      // Generate OpenAI cosmic report with the astrological data
+      const openAIReport = await generateCosmicReport({
+        ...cosmicData,
+        birthData: {
+          ...formData,
+          birthDate: formData.birthDate,
+          birthTime: formData.birthTime,
+          birthPlace: formData.birthPlace,
+          latitude: formData.latitude,
+          longitude: formData.longitude
+        }
+      });
+
+      if (openAIReport.error) {
+        throw new Error(`OpenAI API Error: ${openAIReport.error}`);
+      }
+      
+      // Merge the OpenAI report with the cosmic data
+      const completeReport = {
+        ...cosmicData,
+        ...openAIReport
+      };
+      
+      // Set the complete report
+      setReport(completeReport);
       
       // Optionally save to Supabase
       try {

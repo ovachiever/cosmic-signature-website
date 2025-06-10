@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#B5973A" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGradient)" stroke-width="1" />
+  <circle cx="50" cy="50" r="40" fill="none" stroke="url(#goldGradient)" stroke-width="1" />
+  <circle cx="50" cy="50" r="32" fill="none" stroke="url(#goldGradient)" stroke-width="1" />
+  <circle cx="50" cy="50" r="24" fill="none" stroke="url(#goldGradient)" stroke-width="1" />
+  <circle cx="50" cy="50" r="16" fill="none" stroke="url(#goldGradient)" stroke-width="1" />
+  <circle cx="50" cy="50" r="8" fill="none" stroke="url(#goldGradient)" stroke-width="1" />
+  
+  <!-- Sacred geometry patterns -->
+  <path d="M50,2 L50,98 M2,50 L98,50 M14.6,14.6 L85.4,85.4 M14.6,85.4 L85.4,14.6" 
+        fill="none" stroke="url(#goldGradient)" stroke-width="0.5" />
+  
+  <!-- Hexagon pattern -->
+  <path d="M50,10 L85,30 L85,70 L50,90 L15,70 L15,30 Z" 
+        fill="none" stroke="url(#goldGradient)" stroke-width="0.5" />
+        
+  <!-- Metatron's cube elements -->
+  <path d="M50,16 L84,42 L84,74 L50,100 L16,74 L16,42 Z" 
+        fill="none" stroke="url(#goldGradient)" stroke-width="0.3" opacity="0.7" />
+</svg>
